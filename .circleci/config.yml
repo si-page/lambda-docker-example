@@ -4,13 +4,28 @@ orbs:
     aws-ecr: circleci/aws-ecr@6.15.3
 
 workflows:
-    build_push:
-        jobs:
-            - aws-ecr/build-and-push-image:
-                region: AWS_REGION
-                aws-access-key-id: AWS_ACCESS_KEY_ID
-                aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-                account-url: AWS_ECR_ACCOUNT_URL
-                repo: lambdafunctions
-                tag: "latest,${CIRCLE_SHA1}"
-                path: "lambda/example"
+  build-docker-images:
+    jobs:
+      - run_docker_build:
+          matrix:
+            parameters:
+              functionname: ["example"]
+    
+jobs:
+  run_docker_build:
+    docker:
+      - image: cimg/base:2020.12
+    parameters:
+      functionname:
+        type: string
+    steps:
+      - setup_remote_docker:
+          version: 19.03.8
+      - aws-ecr/build-and-push-image:
+          region: AWS_REGION
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          account-url: AWS_ECR_ACCOUNT_URL
+          repo: "lambdafunctions/<< parameters.functionname >>"
+          tag: "latest,${CIRCLE_SHA1}"
+          path: "lambda/<< parameters.functionname >>"
