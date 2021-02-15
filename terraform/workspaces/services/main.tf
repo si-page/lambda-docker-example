@@ -18,7 +18,8 @@ terraform {
 }
 
 resource "aws_ecr_repository" "lambda" {
-  name = "lambdafunctions"
+  for_each = toset(var.lambda_functions)
+  name     = "lambdafunctions/${each.key}"
 }
 
 

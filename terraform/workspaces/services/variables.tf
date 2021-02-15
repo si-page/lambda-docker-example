@@ -9,3 +9,9 @@ variable "aws_secret_access_key" {
 variable "aws_region" {
   type = string
 }
+
+variable "lambda_functions" {
+  default = [
+    "example"
+  ]
+}
